@@ -1,0 +1,116 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | Editar Respuesta
+{% endblock %}
+
+{% block content %}
+
+{% if tipUsuario == "Admin" %}
+  {% include 'components/admin-display.html' %}
+{% else %}
+  {% include 'components/usuario-display.html' %}
+{% endif %}
+
+<div class="flex justify-center min-h-screen">
+  <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      
+      <div class="bg-gray-50 dark:bg-gray-900/50 px-8 py-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-4">
+        {% if foro.imagen %}
+          <img src="{{ foro.imagen.url }}" alt="Imagen del Foro" class="h-12 w-12 rounded-lg object-cover shadow-sm ring-2 ring-white dark:ring-gray-700">
+        {% else %}
+          <img src="{% static 'imagenes/tabula_rasa.png' %}" alt="Imagen del foro" class="h-12 w-12 rounded-lg object-cover shadow-sm ring-2 ring-white dark:ring-gray-700">
+        {% endif %}
+        <div>
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Foro</p>
+          <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ foro.nombre }}</h1>
+        </div>
+      </div>
+
+      <div class="p-8">
+        
+        <div class="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
+            <h3 class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
+                En respuesta a:
+            </h3>
+            <div class="flex gap-3">
+                <div class="w-1 bg-blue-400 dark:bg-blue-600 rounded-full"></div>
+                <div>
+                    <h4 class="font-bold text-gray-800 dark:text-gray-100 text-sm mb-1">
+                        {{ publicacion.titulo }}
+                    </h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {{ publicacion.texto }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white tracking-tight mb-6">Editar tu respuesta</h2>
+
+        <form action="{% url 'form_editar_respuesta' foro.id publicacion.id respuesta.id %}" method="post" class="space-y-6">
+          {% csrf_token %}
+          
+          <div>
+            <label for="txtrespuesta" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tu comentario</label>
+            <textarea id="txtrespuesta" name="txtrespuesta" 
+              class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none h-40"
+              required>{{ txtrespuesta|default:respuesta.texto }}</textarea>
+          </div>
+          
+          {% if errores %}
+            <div class="space-y-2">
+            {% for value in errores.values %}
+              <div x-data="{ show: true }" x-show="show" x-transition 
+                   class="flex items-center gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-600/30 alerta-error">
+                <div class="text-red-600 dark:text-red-400 shrink-0">
+                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                   </svg>
+                </div>
+                <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ value }}</span>
+                <button type="button" class="ml-auto text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 cerrar-alerta">
+                   <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button type="button" onclick="window.location.href='{% url 'mostrar_publicacion' foro.id publicacion.id %}';"
+              class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+              Cancelar
+            </button>
+            <button type="submit"
+              class="px-6 py-2.5 rounded-lg text-sm font-medium bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+              Actualizar Respuesta
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.cerrar-alerta').forEach(button => {
+      button.addEventListener('click', function () {
+        const alerta = this.closest('.alerta-error');
+        if (alerta) {
+          alerta.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

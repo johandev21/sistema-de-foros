@@ -1,0 +1,13 @@
+<header class="flex justify-center px-4 py-2 bg-[#10182B] dark:bg-[#2d3748] text-white">
+  <div class="flex justify-between items-center w-full max-w-7xl">
+    <div class="flex items-center gap-2">
+      <i class="ri-chat-4-line text-[2rem]"></i>
+      <h1 class="text-[2rem] hidden md:block font-bold font-serif">
+        ForoVox</h1>
+    </div>
+    <ul class="flex gap-8">
+      <li class="hover:underline transition-all underline-offset-2"><a href="{% url 'login' %}">Iniciar sesion</a></li>
+      <li class="hover:underline transition-all underline-offset-2"><a href="{% url 'signup' %}">Registrate</a></li>
+    </ul>
+  </div>
+</header>

@@ -1,0 +1,238 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | {{ publicacion.titulo }}
+{% endblock %}
+
+{% block content %}
+
+{% if tipUsuario == "Admin" %}
+  {% include 'components/admin-display.html' %}
+{% else %}
+  {% include 'components/usuario-display.html' %}
+{% endif %}
+
+<div class="flex justify-center min-h-screen ">
+  <div class="flex flex-col items-center xl:items-start max-w-4xl xl:max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <div class="w-full mb-6 flex items-center">
+      <a href="{% url 'foro' foro.id %}" 
+         class="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-sm">
+        <i class="ri-arrow-left-line transition-transform group-hover:-translate-x-1"></i>
+        Volver a <span class="font-bold">{{ foro.nombre }}</span>
+      </a>
+    </div>
+
+    {% if publicacion %}
+    
+    <div class="w-full bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 relative">
+        
+        <div class="h-1.5 w-full bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+
+        <div class="p-6 sm:p-10">
+            
+            <div class="flex justify-between items-start mb-8">
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'perfil_usuario' publicacion.usuario.id %}" class="relative group">
+                        {% if publicacion.usuario.foto %}
+                            <img src="{{ publicacion.usuario.foto.url }}" alt="Autor" class="h-14 w-14 rounded-full object-cover ring-4 ring-gray-50 dark:ring-gray-700 shadow-md group-hover:scale-105 transition-transform">
+                        {% else %}
+                            <img src="{% static 'imagenes/default-profile.png' %}" alt="Autor" class="h-14 w-14 rounded-full object-cover ring-4 ring-gray-50 dark:ring-gray-700 shadow-md group-hover:scale-105 transition-transform">
+                        {% endif %}
+                        <div class="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                    </a>
+                    
+                    <div>
+                        <a href="{% url 'perfil_usuario' publicacion.usuario.id %}" class="block text-base font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            {{ publicacion.usuario.nombres }}
+                        </a>
+                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <span>Publicado el {{ publicacion.fecha|date:"d M Y" }}</span>
+                            <span>&bull;</span>
+                            <span>{{ publicacion.fecha|date:"H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if request.session.idUsuario == publicacion.usuario.id or request.session.tipUsuario == 'Admin' %}
+                <div class="relative">
+                    <button 
+                        class="flex items-center justify-center h-9 w-9 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none"
+                        data-popover-target="postMenu" type="button">
+                        <i class="ri-more-2-fill text-xl"></i>
+                    </button>
+                    <ul role="menu" data-popover="postMenu" 
+                        class="absolute z-20 right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1.5 hidden transform origin-top-right transition-all">
+                        <li>
+                            <a href="{% url 'editar_publicacion' foro.id publicacion.id %}" 
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <i class="ri-edit-line text-blue-500"></i> Editar post
+                            </a>
+                        </li>
+                        <li>
+                            <div class="h-px bg-gray-100 dark:bg-gray-700 my-1"></div>
+                        </li>
+                        <li>
+                            <button 
+                               class="delete-post-btn w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                               data-url="{% url 'eliminar_publicacion' foro.id publicacion.id %}" 
+                               data-titulo="{{ publicacion.titulo }}">
+                                <i class="ri-delete-bin-line"></i> Eliminar post
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-6">
+                <h1 class="text-lg lg:text-2xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+                    {{ publicacion.titulo }}
+                </h1>
+                <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap text-sm lg:text-base">
+                    {{ publicacion.texto }}
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400">
+                <button class="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    <i class="ri-chat-3-line text-xl"></i>
+                    <span class="font-medium">{{ respuestas|length }} Respuestas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 w-full">
+        
+        <div class="order-2 lg:order-1 w-full">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ respuestas|length }}</span>
+                Comentarios
+            </h3>
+
+            <div class="flex flex-col gap-6">
+                {% for respuesta in respuestas reversed %}
+                <div class="group flex gap-4 p-0 sm:p-4 rounded-xl transition-colors hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                    
+                    <div class="shrink-0">
+                        <a href="{% url 'perfil_usuario' respuesta.usuario.id %}">
+                            {% if respuesta.usuario.foto %}
+                                <img src="{{ respuesta.usuario.foto.url }}" alt="User" class="h-10 w-10 rounded-full object-cover shadow-sm">
+                            {% else %}
+                                <img src="{% static 'imagenes/default-profile.png' %}" alt="User" class="h-10 w-10 rounded-full object-cover shadow-sm">
+                            {% endif %}
+                        </a>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-baseline gap-2">
+                                <a href="{% url 'perfil_usuario' respuesta.usuario.id %}" class="text-sm font-bold text-gray-900 dark:text-gray-100 hover:underline">
+                                    {{ respuesta.usuario.nombres }}
+                                </a>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ respuesta.fecha|date:"d M, H:i" }}</span>
+                            </div>
+
+                            {% if request.session.idUsuario == respuesta.usuario.id or request.session.tipUsuario == 'Admin' %}
+                            <div class="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button data-popover-target="respuestaMenu{{ respuesta.id }}" 
+                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="ri-more-fill"></i>
+                                </button>
+                                
+                                <ul role="menu" data-popover="respuestaMenu{{ respuesta.id }}" 
+                                    class="absolute z-20 right-0 top-6 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 hidden">
+                                    <li>
+                                        <a href="{% url 'editar_respuesta' foro.id publicacion.id respuesta.id %}" 
+                                           class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            Editar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <button data-url="{% url 'eliminar_respuesta' foro.id publicacion.id respuesta.id %}" 
+                                                data-texto="{{ respuesta.texto|truncatechars:20 }}"
+                                                class="delete-respuesta-btn block w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            Eliminar
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700/50">
+                            {{ respuesta.texto }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-10 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                    <p class="text-gray-500 dark:text-gray-400">No hay respuestas aún. ¡Sé el primero en responder!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="order-1 lg:order-2 w-full lg:w-80 xl:w-96">
+            <div class="sticky top-24">
+                <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i class="ri-reply-line text-blue-500"></i> Tu Respuesta
+                    </h3>
+                    <form action="{% url 'form_crear_respuesta' foro.id publicacion.id %}" method="post" class="flex flex-col gap-4">
+                        {% csrf_token %}
+                        <div class="relative">
+                            <textarea 
+                                name="txtrespuesta" 
+                                placeholder="Comparte tu opinión..." 
+                                class="w-full bg-gray-50 dark:bg-gray-900/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none h-32" 
+                                required>{{ texto_respuesta|default:'' }}</textarea>
+                        </div>
+                        <button type="submit" 
+                            class="w-full py-2.5 rounded-lg text-sm font-semibold bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20 flex justify-center items-center gap-2">
+                            Enviar Respuesta <i class="ri-send-plane-fill"></i>
+                        </button>
+                    </form>
+                    <p class="text-xs text-gray-400 mt-4 text-center">
+                        Recuerda ser respetuoso y seguir las normas del foro.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+<div id="deleteModal" class="fixed inset-0 z-50 px-4 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-100 transition-all">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminar Publicación</h2>
+    <p id="modalMessage" class="text-sm text-gray-600 dark:text-gray-300 mb-6">¿Estás seguro? Esta acción no se puede deshacer.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelButton" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">Cancelar</button>
+      <button id="confirmDeleteButton" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div id="deleteRespuestaModal" class="fixed inset-0 px-4 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-100 transition-all">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminar Respuesta</h2>
+    <p id="modalRespuestaMessage" class="text-sm text-gray-600 dark:text-gray-300 mb-6">Esta respuesta se eliminará permanentemente.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelRespuestaButton" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+      <button id="confirmDeleteRespuestaButton" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/publicacion.js' %}"></script>
+{% endblock %}

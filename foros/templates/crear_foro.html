@@ -1,0 +1,314 @@
+{% extends 'master.html' %} 
+{% load static %} 
+{% block title %} ForoVox | Crear Foro {% endblock %} 
+{% block content %} {% include 'components/admin-display.html' %}
+
+<div class="flex justify-center min-h-screen">
+  <div
+    class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]"
+  >
+    <form
+      action="{% url 'form_crear_foro' %}"
+      method="post"
+      enctype="multipart/form-data"
+      class="w-full max-w-lg bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 p-8"
+    >
+      {% csrf_token %}
+
+      <h1
+        class="text-2xl font-bold mb-8 text-gray-800 dark:text-white tracking-tight"
+      >
+        Crear foro
+      </h1>
+
+      <div
+        class="flex flex-col items-center sm:flex-row sm:items-start gap-6 mb-8"
+      >
+        <div class="relative group">
+          <img
+            src="{% static 'imagenes/tabula_rasa.png' %}"
+            id="foto-de-perfil"
+            alt="Imagen del Foro"
+            class="h-24 w-24 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-gray-700"
+          />
+        </div>
+        <div class="flex flex-col justify-center h-24">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Imagen del foro</label
+          >
+          <label
+            for="input-file"
+            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm"
+          >
+            <i class="ri-upload-line text-lg"></i> Subir imagen
+          </label>
+          <input
+            type="file"
+            accept="image/jpeg, image/png, image/jpg"
+            id="input-file"
+            name="imagen"
+            class="hidden"
+          />
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            JPG, PNG o GIF (Max. 2MB)
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col w-full space-y-6">
+        <div>
+          <label
+            for="txtnomfor"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Nombre del Foro</label
+          >
+          <input
+            name="txtnomfor"
+            id="txtnomfor"
+            type="text"
+            placeholder="Ej: Discusión General"
+            value="{{ data.txtnomfor|default:'' }}"
+            class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-sm"
+            required
+          />
+        </div>
+
+        <div class="relative custom-select-container">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Temática</label
+          >
+
+          <input
+            type="hidden"
+            name="cbotem"
+            id="selected-tematica-id"
+            value="{{ data.cbotem|default:'' }}"
+            required
+          />
+
+          <button
+            id="dropdown-button"
+            tabindex="0"
+            type="button"
+            class="flex items-center gap-4 justify-between w-full outline-none focus:outline-none text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 ring-transparent border border-gray-300 dark:border-gray-600 transition-all duration-300 ease-in disabled:opacity-50 select-none text-start text-sm rounded-lg py-2.5 px-4 shadow-sm hover:border-gray-400 dark:hover:border-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+          >
+            <span id="dropdown-label" class="truncate">
+              {% if data.cbotem %} 
+                {% for tematica in tematicas %} 
+                  {% if tematica.id|stringformat:"s" == data.cbotem %} {{ tematica.nombre }} 
+                {% endif %} 
+              {% endfor %} 
+              {% else %} Seleccione temática {% endif %}
+            </span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
+              id="dropdown-arrow"
+            >
+              <path
+                d="M17 8L12 3L7 8"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+              <path
+                d="M17 16L12 21L7 16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </button>
+
+          <ul
+            id="dropdown-menu"
+            class="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto hidden opacity-0 transition-opacity duration-200"
+          >
+            <li
+              class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 cursor-default select-none"
+            >
+              Seleccione una opción
+            </li>
+            {% for tematica in tematicas %}
+            <li
+              data-value="{{ tematica.id }}"
+              class="dropdown-item px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors"
+            >
+              {{ tematica.nombre }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div>
+          <label
+            for="txtdesfor"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Descripción</label
+          >
+          <textarea
+            name="txtdesfor"
+            id="txtdesfor"
+            placeholder="Describe de qué trata este foro..."
+            class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none h-[12rem]"
+            required
+          >{{ data.txtdesfor|default:'' }}</textarea
+          >
+        </div>
+      </div>
+
+      {% if errores %}
+      <div class="mt-8 space-y-2">
+        {% for value in errores.values %}
+        <div
+          class="alerta-error flex items-center justify-between p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-600/30"
+        >
+          <div class="flex items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="w-5 h-5 text-red-600 dark:text-red-400"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+              />
+            </svg>
+            <span class="text-sm font-medium text-red-700 dark:text-red-300"
+              >{{ value }}</span
+            >
+          </div>
+          <button
+            type="button"
+            class="cerrar-alerta text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 transition-colors"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <button
+          type="reset"
+          class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+        >
+          Limpiar
+        </button>
+        <button
+          type="submit"
+          class="px-5 py-2.5 rounded-lg text-sm font-medium bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+        >
+          Crear Foro
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} 
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".cerrar-alerta").forEach((button) => {
+      button.addEventListener("click", function () {
+        const alerta = this.closest(".alerta-error");
+        if (alerta) {
+          alerta.style.display = "none";
+        }
+      });
+    });
+
+    const dropdownButton = document.getElementById("dropdown-button");
+    const dropdownMenu = document.getElementById("dropdown-menu");
+    const dropdownLabel = document.getElementById("dropdown-label");
+    const dropdownArrow = document.getElementById("dropdown-arrow");
+    const hiddenInput = document.getElementById("selected-tematica-id");
+    const dropdownItems = document.querySelectorAll(".dropdown-item");
+
+    dropdownButton.addEventListener("click", function () {
+      const isHidden = dropdownMenu.classList.contains("hidden");
+      if (isHidden) {
+        dropdownMenu.classList.remove("hidden");
+        setTimeout(() => dropdownMenu.classList.remove("opacity-0"), 10);
+        dropdownButton.setAttribute("aria-expanded", "true");
+        dropdownArrow.classList.add("rotate-180");
+      } else {
+        closeDropdown();
+      }
+    });
+
+    dropdownItems.forEach((item) => {
+      item.addEventListener("click", function () {
+        const value = this.getAttribute("data-value");
+        const text = this.textContent.trim();
+
+        hiddenInput.value = value;
+        dropdownLabel.textContent = text;
+        dropdownLabel.classList.remove("text-gray-500");
+
+        closeDropdown();
+      });
+    });
+
+    document.addEventListener("click", function (event) {
+      if (
+        !dropdownButton.contains(event.target) &&
+        !dropdownMenu.contains(event.target)
+      ) {
+        closeDropdown();
+      }
+    });
+
+    function closeDropdown() {
+      dropdownMenu.classList.add("opacity-0");
+      dropdownArrow.classList.remove("rotate-180");
+      dropdownButton.setAttribute("aria-expanded", "false");
+      setTimeout(() => dropdownMenu.classList.add("hidden"), 200);
+    }
+
+    const inputFile = document.getElementById('input-file');
+    const profilePic = document.getElementById('foto-de-perfil');
+    const defaultSrc = profilePic.src;
+
+    inputFile.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePic.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('reset', function() {
+        profilePic.src = defaultSrc;
+        
+        dropdownLabel.textContent = "Seleccione temática";
+        hiddenInput.value = "";
+    });
+
+  });
+</script>
+{% endblock %}

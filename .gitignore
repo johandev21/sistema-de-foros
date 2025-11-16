@@ -1,0 +1,27 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Entorno Virtual
+venv/
+env/
+
+# Django secret settings
+.env
+
+# Configuración de IDE
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Imagenes de la BD
+media/
+
+foros/management/commands/
+
+staticfiles/

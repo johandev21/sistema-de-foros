@@ -1,0 +1,192 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | Editar Perfil
+{% endblock %}
+
+{% block content %}
+
+{% if tipUsuario == "Admin" %}
+    {% include 'components/admin-display.html' %}
+{% else %}
+    {% include 'components/usuario-display.html' %}
+{% endif %}
+
+<div class="flex justify-center min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
+  <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <form action="{% url 'form_editar_usuario' usuario.id %}" method="POST" enctype="multipart/form-data"
+      class="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      {% csrf_token %}
+      
+      <div class="p-8 sm:p-10">
+        
+        <div class="flex flex-col items-center mb-10">
+          <div class="relative group">
+            {% if usuario.foto %}
+              <img src="{{ usuario.foto.url }}" alt="Foto de perfil" id="preview-image" 
+                   class="h-32 w-32 rounded-full object-cover ring-4 ring-gray-100 dark:ring-gray-700 shadow-md">
+            {% else %}
+              <img src="{% static 'imagenes/default-profile.png' %}" alt="Foto de perfil" id="preview-image" 
+                   class="h-32 w-32 rounded-full object-cover ring-4 ring-gray-100 dark:ring-gray-700 shadow-md">
+            {% endif %}
+            
+            <label for="foto" class="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+            </label>
+          </div>
+          
+          <h2 class="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{{ data.txtnom|default:usuario.nombres }}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Actualiza tu información personal</p>
+
+          <input id="foto" name="foto" type="file" accept="image/*" class="hidden">
+        </div>
+
+        <div class="space-y-6">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rut</label>
+                    <input type="text" name="txtrut" value="{{ usuario.rut }}" disabled
+                        class="w-full bg-gray-100 dark:bg-gray-900/50 text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Correo Electrónico</label>
+                    <input type="email" name="txtema" value="{{ usuario.correo }}" disabled
+                        class="w-full bg-gray-100 dark:bg-gray-900/50 text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm cursor-not-allowed">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombres</label>
+                <input type="text" name="txtnom" value="{{ data.txtnom|default:usuario.nombres }}" placeholder="Nombres" required
+                    class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido Paterno</label>
+                    <input type="text" name="txtapep" value="{{ data.txtapep|default:usuario.paterno }}" placeholder="Apellido Paterno" required
+                        class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido Materno</label>
+                    <input type="text" name="txtapem" value="{{ data.txtapem|default:usuario.materno }}" placeholder="Apellido Materno" required
+                        class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nacionalidad</label>
+                <input type="text" name="txtnac" value="{{ data.txtnac|default:usuario.nacionalidad }}" placeholder="Nacionalidad" required
+                    class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm">
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Cambiar Contraseña (Opcional)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <input type="password" name="txtpas" placeholder="Nueva contraseña"
+                            class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm password-input pr-10">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 toggle-password">
+                            <i class="ri-eye-off-fill text-lg"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="password" name="txtpas2" placeholder="Repetir nueva contraseña"
+                            class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent shadow-sm password-input pr-10">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 toggle-password">
+                            <i class="ri-eye-off-fill text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% if errores %}
+            <div class="space-y-2 pt-2">
+                {% for value in errores.values %}
+                <div class="flex items-center gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-600/30 alerta-error">
+                    <div class="text-red-600 dark:text-red-400 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ value }}</span>
+                    <button type="button" class="ml-auto text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 cerrar-alerta">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-10 pt-6 border-t border-gray-100 dark:border-gray-700">
+            <a href="{% url 'perfil_usuario' usuario.id %}"
+               class="px-5 py-2.5 text-sm font-medium text-center text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                Cancelar
+            </a>
+            <button type="submit"
+                class="px-5 py-2.5 rounded-lg text-sm font-medium bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+                Guardar cambios
+            </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- Image Preview Logic ---
+    const inputFoto = document.getElementById('foto');
+    const previewImage = document.getElementById('preview-image');
+
+    if(inputFoto && previewImage) {
+        inputFoto.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                previewImage.src = URL.createObjectURL(file);
+                // Free memory when image loads
+                previewImage.onload = () => URL.revokeObjectURL(previewImage.src);
+            }
+        });
+    }
+
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling; 
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('ri-eye-off-fill');
+                icon.classList.add('ri-eye-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('ri-eye-fill');
+                icon.classList.add('ri-eye-off-fill');
+            }
+        });
+    });
+
+    const closeButtons = document.querySelectorAll('.cerrar-alerta');
+    closeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const alertBox = this.closest('.alerta-error');
+            if(alertBox) alertBox.style.display = 'none';
+        });
+    });
+
+  });
+</script>
+{% endblock %}

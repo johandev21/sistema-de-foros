@@ -1,0 +1,150 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox
+{% endblock %}
+
+{% block content %}
+
+{% if tipUsuario == "Admin" %}
+  {% include 'components/admin-display.html' %}
+{% else %}
+  {% include 'components/usuario-display.html' %}
+{% endif %}
+
+<div class="flex justify-center min-h-screen">
+  <div class="flex flex-col items-center xl:items-start max-w-5xl xl:max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <div class="w-full mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Publicaciones Recientes</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Descubre lo último que está pasando en la comunidad.</p>
+      </div>
+    </div>
+
+    {% if publicaciones %}
+    <div class="w-full space-y-6">
+      {% for publicacion in publicaciones %}
+      
+      <div class="group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden">
+        
+        <div class="px-6 pt-5 pb-3 flex justify-between items-start border-b border-gray-50 dark:border-gray-700/50">
+            
+            <a href="{% url 'foro' publicacion.foro.id %}" class="flex items-center gap-2 group/forum">
+                <div class="relative">
+                    {% if publicacion.foro.imagen %}
+                        <img src="{{ publicacion.foro.imagen.url }}" alt="Logo Foro" class="w-8 h-8 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700">
+                    {% else %}
+                        <img src="{% static 'imagenes/tabula_rasa.png' %}" alt="Logo Foro" class="w-8 h-8 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700">
+                    {% endif %}
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wide group-hover/forum:text-blue-500 transition-colors">Foro</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white group-hover/forum:underline">{{ publicacion.foro.nombre }}</span>
+                </div>
+            </a>
+
+            {% if request.session.idUsuario == publicacion.usuario.id or tipUsuario == 'Admin' %}
+            <div class="relative">
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none"
+                        data-popover-target="postMenu-{{ forloop.counter }}" type="button">
+                    <i class="ri-more-fill text-xl"></i>
+                </button>
+                <ul role="menu" data-popover="postMenu-{{ forloop.counter }}" 
+                    class="absolute z-20 right-0 top-8 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 hidden">
+                    <li>
+                        <a href="{% url 'mostrar_publicacion' publicacion.foro.id publicacion.id %}" 
+                           class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                           <i class="ri-eye-line"></i> Ver
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'editar_publicacion' publicacion.foro.id publicacion.id %}" 
+                           class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                           <i class="ri-edit-line"></i> Editar
+                        </a>
+                    </li>
+                    <li>
+                        <button class="delete-post-btn w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                data-url="{% url 'eliminar_publicacion' publicacion.foro.id publicacion.id %}"
+                                data-titulo="{{ publicacion.titulo }}">
+                           <i class="ri-delete-bin-line"></i> Eliminar
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'mostrar_publicacion' publicacion.foro.id publicacion.id %}" class="block px-6 py-5 group-hover:opacity-95 transition-opacity">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {{ publicacion.titulo }}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+                {{ publicacion.texto|truncatewords:40 }}
+            </p>
+        </a>
+
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 dark:text-gray-400">Publicado por</span>
+                <span class="text-xs font-semibold text-gray-900 dark:text-gray-200">{{ publicacion.usuario.nombres }}</span>
+                <span class="text-xs text-gray-400">&bull;</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ publicacion.fecha|date:"d M" }}</span>
+            </div>
+
+            <a href="{% url 'mostrar_publicacion' publicacion.foro.id publicacion.id %}" 
+               class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+               Leer más <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="w-full flex flex-col items-center justify-center py-20 px-4 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 shadow-sm">
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full mb-4">
+            <i class="ri-discuss-line text-4xl text-blue-500 dark:text-blue-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No hay publicaciones recientes</h3>
+        <p class="text-gray-500 dark:text-gray-400 max-w-md mb-6">
+            Parece que está un poco tranquilo por aquí. ¡Explora los foros y sé el primero en iniciar una conversación!
+        </p>
+        <a href="{% url 'explorar_foros' %}" class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
+            Explorar Foros
+        </a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<div id="deleteModal" class="fixed inset-0 z-50 px-4 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-100 transition-all">
+    <div class="flex items-center gap-4 mb-5">
+        <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-full text-red-600 dark:text-red-400">
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+           </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white">Eliminar Publicación</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Esta acción es irreversible.</p>
+        </div>
+      </div>
+    <p id="modalMessage" class="text-sm text-gray-600 dark:text-gray-300 mb-6 ml-1">¿Estás seguro? Esta acción no se puede deshacer.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelButton" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+      <button id="confirmDeleteButton" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | Historial de Acciones
+{% endblock %}
+
+{% block content %}
+{% include 'components/admin-display.html' %}
+
+<div class="flex justify-center min-h-screen">
+  <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <h2 class="font-bold text-2xl mb-8 text-gray-800 dark:text-white tracking-tight">Historial de Acciones</h2>
+
+    <div class="w-full flex justify-between items-center mb-6 mt-1">
+      <form method="GET" action="{% url 'historial_acciones' %}" class="w-full max-w-sm min-w-[200px]">
+        <div class="relative group">
+          <input name="q" value="{{ search_query }}"
+            class="w-full pr-11 h-11 pl-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 shadow-sm group-hover:border-gray-300 dark:group-hover:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            placeholder="Buscar acción o usuario..." />
+          <button class="absolute h-9 w-9 right-1 top-1 my-auto px-2 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+            type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="relative flex flex-col w-full h-auto overflow-hidden text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 shadow-xl rounded-xl bg-clip-border border border-gray-200 dark:border-gray-700">
+      <table id="historialTable" class="w-full text-left table-auto min-w-max">
+        <thead>
+          <tr class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <th class="p-4">
+              <p class="text-xs font-bold leading-none text-gray-500 dark:text-gray-400 uppercase tracking-wider">Id</p>
+            </th>
+            <th class="p-4">
+              <p class="text-xs font-bold leading-none text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usuario</p>
+            </th>
+            <th class="p-4">
+              <p class="text-xs font-bold leading-none text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acción</p>
+            </th>
+            <th class="p-4">
+              <p class="text-xs font-bold leading-none text-gray-500 dark:text-gray-400 text-end uppercase tracking-wider">Fecha y hora</p>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="historialTableBody">
+          {% for accion in page_obj %}
+          <tr class="group hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 last:border-none transition-colors duration-150">
+            <td class="p-4 py-5">
+              <p class="block font-medium text-sm text-gray-900 dark:text-gray-100">{{ accion.id }}</p>
+            </td>
+            <td class="p-4 py-5">
+              <p class="text-sm text-gray-700 dark:text-gray-300">{{ accion.usuario.nombres }}</p>
+            </td>
+            <td class="p-4 py-5">
+              <p class="text-sm text-gray-700 dark:text-gray-300">{{ accion.accion }}</p>
+            </td>
+            <td class="p-4 py-5 text-right">
+              <p class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ accion.fecha|date:"M. d, Y, g:i a" }}</p>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+              No hay acciones registradas.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="flex justify-between items-center px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          {% if page_obj.paginator.count > 0 %}
+            Mostrando <span class="font-semibold text-gray-900 dark:text-white">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> de <span class="font-semibold text-gray-900 dark:text-white">{{ page_obj.paginator.count }}</span>
+          {% else %}
+            No se encontraron acciones.
+          {% endif %}
+        </div>
+        
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="flex space-x-2">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm">
+              Anterior
+            </a>
+          {% else %}
+            <button
+              class="px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed" disabled>
+              Anterior
+            </button>
+          {% endif %}
+          
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm">
+              Siguiente
+            </a>
+          {% else %}
+            <button
+              class="px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed" disabled>
+              Siguiente
+            </button>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

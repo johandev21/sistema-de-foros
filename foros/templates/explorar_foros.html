@@ -1,0 +1,229 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | Explorar Foros
+{% endblock %}
+
+{% block content %}
+
+{% if tipUsuario == "Admin" %}
+    {% include 'components/admin-display.html' %}
+{% else %}
+    {% include 'components/usuario-display.html' %}
+{% endif %}
+
+<div class="flex justify-center min-h-screen">
+  <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <div class="w-full mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Explorar Foros</h1>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Encuentra nuevas comunidades e intereses.</p>
+    </div>
+
+    <div class="w-full mb-10">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Temáticas Populares</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for tematica in popular_tematicas %}
+            <a href="?tematica={{ tematica.id }}" class="group block p-5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-700 dark:to-indigo-800 hover:shadow-lg hover:scale-[1.02] transition-all transform duration-200">
+                <h3 class="text-white font-bold text-lg">{{ tematica.nombre }}</h3>
+                <p class="text-blue-200 text-sm line-clamp-1">{{ tematica.descripcion }}</p>
+            </a>
+            {% endfor %}
+            {% if not popular_tematicas %}
+            <div class="group block p-5 rounded-xl bg-gradient-to-br from-gray-500 to-gray-600">
+                <h3 class="text-white font-bold text-lg">Música</h3>
+                <p class="text-gray-200 text-sm line-clamp-1">Discusiones sobre géneros y artistas.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="w-full mb-8">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Todos los Foros</h2>
+        <form method="GET" action="{% url 'explorar_foros' %}" class="flex flex-col md:flex-row gap-4 w-full">
+            <div class="relative flex-grow group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="ri-search-line text-gray-400"></i>
+                </div>
+                <input name="q" value="{{ search_query }}"
+                    class="w-full h-12 pl-11 pr-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:border-blue-500 shadow-sm placeholder:text-gray-400"
+                    placeholder="Buscar por nombre o descripción..." />
+            </div>
+            
+            <div class="relative shrink-0 w-full md:w-56" id="custom-select-container">
+                <input type="hidden" name="tematica" id="selected-tematica-id" value="{{ current_tematica_id|default:'' }}">
+                
+                <button id="dropdown-button" type="button" 
+                        class="flex items-center justify-between w-full h-12 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm text-left border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:border-blue-500 shadow-sm cursor-pointer"
+                        aria-haspopup="listbox" aria-expanded="false">
+                    
+                    <span id="dropdown-label" class="truncate">
+                        {% if current_tematica_id_int %}
+                            {% for tematica in all_tematicas %}
+                                {% if current_tematica_id_int == tematica.id %}
+                                    {{ tematica.nombre }}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Todas las temáticas
+                        {% endif %}
+                    </span>
+                    
+                    <svg id="dropdown-arrow" viewBox="0 0 24 24" fill="none" class="h-4 w-4 text-gray-400 transition-transform duration-200" stroke-width="1.5">
+                      <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                      <path d="M17 16L12 21L7 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+
+                <ul id="dropdown-menu" 
+                    class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto hidden opacity-0 transition-opacity duration-200">
+                    
+                    <li class="dropdown-item px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors" 
+                        data-value="">
+                        Todas las temáticas
+                    </li>
+                    
+                    {% for tematica in all_tematicas %}
+                    <li class="dropdown-item px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors"
+                        data-value="{{ tematica.id }}">
+                        {{ tematica.nombre }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <button type="submit" class="shrink-0 h-12 px-6 rounded-xl text-sm font-semibold bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+                Filtrar
+            </button>
+        </form>
+    </div>
+
+    <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        
+        {% for foro in page_obj %}
+        <a href="{% url 'foro' foro.id %}" class="group block bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02]">
+            {% if foro.imagen %}
+                <img src="{{ foro.imagen.url }}" alt="Logo del Foro" class="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-110">
+            {% else %}
+                <img src="{% static 'imagenes/tabula_rasa.png' %}" alt="Logo por defecto" class="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-110">
+            {% endif %}
+            
+            <div class="p-5">
+                <span class="inline-block px-3 py-1 text-xs font-bold text-blue-800 bg-blue-100 dark:text-blue-200 dark:bg-blue-900/30 rounded-full mb-3">
+                    {{ foro.tematica.nombre }}
+                </span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    {{ foro.nombre }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                    {{ foro.descripcion }}
+                </p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.count == 0 %}
+    <div class="w-full flex flex-col items-center justify-center py-20 px-4 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 shadow-sm col-span-1 md:col-span-2 lg:col-span-3">
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full mb-4">
+            <i class="ri-search-eye-line text-4xl text-blue-500 dark:text-blue-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No se encontraron foros</h3>
+        <p class="text-gray-500 dark:text-gray-400 max-w-md mb-6">
+            Intenta ajustar tus filtros de búsqueda o explora otras temáticas.
+        </p>
+    </div>
+    {% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="w-full flex flex-col sm:flex-row items-center sm:justify-between gap-4 px-6 py-4 my-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            Mostrando <b>{{ page_obj.start_index }}-{{ page_obj.end_index }}</b> de <b>{{ page_obj.paginator.count }}</b> foros
+        </div>
+        
+        <div class="flex space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&tematica={{ current_tematica_id }}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm">
+                   Anterior
+                </a>
+            {% else %}
+                <button class="px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed" disabled>
+                   Anterior
+                </button>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&tematica={{ current_tematica_id }}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm">
+                   Siguiente
+                </a>
+            {% else %}
+                <button class="px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed" disabled>
+                   Siguiente
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('custom-select-container');
+    if (container) {
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const dropdownLabel = document.getElementById('dropdown-label');
+        const dropdownArrow = document.getElementById('dropdown-arrow');
+        const hiddenInput = document.getElementById('selected-tematica-id');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        function closeDropdown() {
+            dropdownMenu.classList.add('opacity-0');
+            dropdownMenu.classList.add('hidden');
+            dropdownButton.setAttribute('aria-expanded', 'false');
+            dropdownArrow.classList.remove('rotate-180');
+        }
+
+        dropdownButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isHidden = dropdownMenu.classList.contains('hidden');
+            if (isHidden) {
+                dropdownMenu.classList.remove('hidden');
+                setTimeout(() => dropdownMenu.classList.remove('opacity-0'), 10);
+                dropdownButton.setAttribute('aria-expanded', 'true');
+                dropdownArrow.classList.add('rotate-180');
+            } else {
+                closeDropdown();
+            }
+        });
+
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent.trim();
+                
+                hiddenInput.value = value;
+                dropdownLabel.textContent = text;
+                
+                dropdownItems.forEach(i => i.classList.remove('font-bold', 'text-blue-600'));
+                this.classList.add('font-bold', 'text-blue-600');
+
+                closeDropdown();
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!container.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

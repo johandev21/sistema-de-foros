@@ -1,0 +1,67 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+ForoVox | Crear Temática
+{% endblock %}
+
+{% block content %}
+
+{% include 'components/admin-display.html' %}
+
+<div class="flex justify-center min-h-screen">
+  <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
+    
+    <form action="{% url 'form_crear_tematica' %}" method="post" 
+          class="w-full max-w-lg bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+      {% csrf_token %}
+      
+      <h1 class="text-2xl font-bold mb-8 text-gray-800 dark:text-white tracking-tight">Crear temática</h1>
+
+      <div class="flex flex-col w-full space-y-6">
+        
+        <div>
+          <label for="txtnomtem" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de la temática</label>
+          <input id="txtnomtem" name="txtnomtem" type="text" placeholder="Ej: Música, Videojuegos, etc."
+                 value="{{ data.txtnomfor }}"
+                 class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500">
+        </div>
+        
+        <div>
+          <label for="txtdestem" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
+          <textarea id="txtdestem" name="txtdestem" placeholder="Una breve descripción de la temática..."
+                    class="w-full bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm transition duration-200 ease focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none h-[12rem]">{{ data.txtdesfor }}</textarea>
+        </div>
+      </div>
+
+      {% if errores %}
+        <div class="mt-8 space-y-2">
+          {% for value in errores.values %}
+          <div class="flex items-center gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-600/30">
+            <div class="text-red-600 dark:text-red-400 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ value }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <button type="reset"
+                class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+          Limpiar
+        </button>
+        <button type="submit" 
+                class="px-5 py-2.5 rounded-lg text-sm font-medium bg-slate-800 dark:bg-blue-600 text-white transition-all hover:bg-slate-700 dark:hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+          Crear Temática
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

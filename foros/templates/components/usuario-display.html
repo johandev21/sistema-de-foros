@@ -1,0 +1,127 @@
+{% load static %}
+<header
+  class="fixed z-40 w-full flex justify-center px-4 py-2 bg-[#10182B] dark:bg-[#2d3748] text-white"
+>
+  <div class="relative flex justify-between items-center w-full max-w-7xl">
+    <a href="/" class="flex items-center gap-2">
+      <i class="ri-chat-4-line text-[2rem]"></i>
+      <h1 class="text-[2rem] hidden md:block font-bold font-serif">ForoVox</h1>
+    </a>
+
+    <div class="flex items-center gap-2 sm:gap-4">
+      <div x-data="{ open: false }" class="relative">
+        <button
+          @click="open = !open"
+          class="theme-toggle flex items-center justify-center w-10 h-10 rounded-full text-white hover:bg-white/10 transition-colors focus:outline-none"
+        >
+          <i
+            class="ri-sun-line text-lg theme-icon-light"
+            style="display: none"
+          ></i>
+          <i class="ri-moon-line text-lg theme-icon-dark"></i>
+          <span class="sr-only">Cambiar tema</span>
+        </button>
+
+        <div
+          x-show="open"
+          @click.away="open = false"
+          x-transition:enter="transition ease-out duration-100 transform"
+          x-transition:enter-start="opacity-0 scale-95"
+          x-transition:enter-end="opacity-100 scale-100"
+          x-transition:leave="transition ease-in duration-75 transform"
+          x-transition:leave-start="opacity-100 scale-100"
+          x-transition:leave-end="opacity-0 scale-95"
+          class="absolute z-50 top-12 right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 py-1.5"
+          style="display: none"
+        >
+          <a
+            @click="setTheme('light'); open = false"
+            class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          >
+            <i class="ri-sun-line text-lg"></i> Modo Claro
+          </a>
+          <a
+            @click="setTheme('dark'); open = false"
+            class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          >
+            <i class="ri-moon-line text-lg"></i> Modo Oscuro
+          </a>
+          <a
+            @click="setTheme('system'); open = false"
+            class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          >
+            <i class="ri-computer-line text-lg"></i> Sistema
+          </a>
+        </div>
+      </div>
+
+      <span class="dark:text-gray-300 hidden sm:block">{{ nomUsuario }}</span>
+
+      {% if fotoUsuario %}
+      <img
+        src="{{ fotoUsuario }}"
+        id="profile-image"
+        alt="Foto de perfil del usuario"
+        class="size-11 rounded-full"
+      />
+      {% else %}
+      <img
+        src="{% static 'imagenes/default-profile.png' %}"
+        id="profile-image"
+        alt="Foto de perfil del usuario"
+        class="size-11 rounded-full"
+      />
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<div class="flex justify-center pt-[6.25rem]">
+  <aside class="max-w-7xl w-full relative">
+    <ul
+      id="navigation-menu"
+      class="hidden xl:flex xl:flex-col fixed right-4 top-20 z-50 bg-white dark:bg-[#2D3748] text-sm text-[#333333] dark:text-gray-300 gap-2 p-4 border-[0.094rem] border-slate-200 dark:border-slate-700 w-full max-w-72 shadow-md rounded-lg xl:right-auto xl:left-auto xl:inset-auto"
+    >
+      <a href="{% url 'perfil_usuario' idUsuario %}">
+        <li
+          class="flex gap-3 items-center p-1 rounded-md hover:bg-[#F1F3F8] dark:hover:bg-[#4A5568] transition-colors hover:text-[#000000] dark:hover:text-white cursor-pointer"
+        >
+          {% if fotoUsuario %}
+          <img
+            src="{{ fotoUsuario }}"
+            id="profile-image"
+            alt="Foto de perfil"
+            class="size-6 rounded-full cursor-pointer xl:cursor-auto"
+          />
+          {% else %}
+          <img
+            src="{% static 'imagenes/default-profile.png' %}"
+            id="profile-image"
+            alt="Foto de perfil"
+            class="size-6 rounded-full cursor-pointer xl:cursor-auto"
+          />
+          {% endif %} Ver Perfil
+        </li>
+      </a>
+
+      <a href="{% url 'explorar_foros' %}">
+        <li
+          class="flex gap-3 items-center p-1 rounded-md hover:bg-[#F1F3F8] dark:hover:bg-[#4A5568] transition-colors hover:text-[#000000] dark:hover:text-white cursor-pointer"
+        >
+          <i class="ri-group-2-line text-2xl"></i>
+          Foros
+        </li>
+      </a>
+
+      <a href="{% url 'logout' %}">
+        <li
+          class="flex gap-3 items-center p-1 rounded-md hover:bg-[#F1F3F8] dark:hover:bg-[#4A5568] transition-colors hover:text-[#000000] dark:hover:text-white cursor-pointer"
+        >
+          <i class="ri-logout-box-r-line text-2xl"></i>
+          Cerrar sesión
+        </li>
+      </a>
+
+    </ul>
+  </aside>
+</div>
