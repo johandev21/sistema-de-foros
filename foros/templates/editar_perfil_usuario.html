@@ -13,7 +13,7 @@ ForoVox | Editar Perfil
     {% include 'components/usuario-display.html' %}
 {% endif %}
 
-<div class="flex justify-center min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
+<div class="flex justify-center min-h-screen bg-gray-100 dark:bg-gray-900 pb-8">
   <div class="flex flex-col items-center xl:items-start max-w-7xl w-full px-4 xl:pl-[25rem]">
     
     <form action="{% url 'form_editar_usuario' usuario.id %}" method="POST" enctype="multipart/form-data"

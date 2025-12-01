@@ -55,21 +55,19 @@
         </div>
       </div>
 
-      <span class="dark:text-gray-300 hidden sm:block">{{ tipUsuario }}</span>
-
       {% if fotoUsuario %}
       <img
         src="{{ fotoUsuario }}"
         id="profile-image"
         alt="Foto de perfil del usuario"
-        class="size-11 rounded-full"
+        class="size-11 rounded-full xl:hidden"
       />
       {% else %}
       <img
         src="{% static 'imagenes/default-profile.png' %}"
         id="profile-image"
         alt="Foto de perfil del usuario"
-        class="size-11 rounded-full"
+        class="size-11 rounded-full xl:hidden"
       />
       {% endif %}
     </div>

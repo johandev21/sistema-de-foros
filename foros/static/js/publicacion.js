@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Código para el menú de la publicación
   const menuIcon = document.querySelector('[data-popover-target="postMenu"]');
   if (menuIcon) {
     const menuId = menuIcon.getAttribute('data-popover-target');
@@ -51,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Código para los menús de las respuestas
   const respuestaMenuIcons = document.querySelectorAll('[data-popover-target^="respuestaMenu"]');
 
   respuestaMenuIcons.forEach((menuIcon) => {
@@ -68,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Código para el modal de eliminación de respuesta
   const deleteRespuestaButtons = document.querySelectorAll('.delete-respuesta-btn');
   const deleteRespuestaModal = document.getElementById('deleteRespuestaModal');
   const cancelRespuestaButton = document.getElementById('cancelRespuestaButton');
@@ -98,7 +95,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const openResponderModalBtn = document.getElementById('openResponderModal');
+  const responderModal = document.getElementById('responderModal');
+  const closeResponderModalBtn = document.getElementById('closeResponderModal');
+  const cancelResponderBtn = document.getElementById('cancelResponderButton');
+
+  if (openResponderModalBtn && responderModal) {
+    console.log('Responder modal elements found');
+    openResponderModalBtn.addEventListener('click', () => {
+      console.log('Responder button clicked');
+      responderModal.classList.remove('hidden');
+    });
+  } else {
+    console.error('Responder modal elements NOT found', { openResponderModalBtn, responderModal });
+  }
+
+  const closeResponderModal = () => {
+    if (responderModal) {
+      responderModal.classList.add('hidden');
+    }
+  };
+
+  if (closeResponderModalBtn) {
+    closeResponderModalBtn.addEventListener('click', closeResponderModal);
+  }
+
+  if (cancelResponderBtn) {
+    cancelResponderBtn.addEventListener('click', closeResponderModal);
+  }
+
   window.addEventListener('click', (event) => {
+    if (event.target === responderModal) {
+      closeResponderModal();
+    }
+    if (event.target === deleteModal) {
+      deleteModal.classList.add('hidden');
+    }
     if (event.target === deleteRespuestaModal) {
       deleteRespuestaModal.classList.add('hidden');
     }
